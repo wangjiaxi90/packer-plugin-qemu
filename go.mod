@@ -1,4 +1,4 @@
-module github.com/hashdata/packer-plugin-qemu
+module github.com/wangjiaxi90/packer-plugin-qemu
 
 go 1.16
 
