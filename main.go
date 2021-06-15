@@ -26,7 +26,7 @@ var (
 func main() {
 
 	pps := plugin.NewSet()
-	pps.RegisterBuilder("qemu-builder", new(chroot.Builder))
+	pps.RegisterBuilder("qemu-chroot", new(chroot.Builder))
 	pps.SetVersion(PluginVersion)
 	err := pps.Run()
 	if err != nil {
