@@ -10,7 +10,7 @@ import (
 
 var (
 	// Version is the main version number that is being run at the moment.
-	Version = "0.0.2"
+	Version = "0.1.1"
 
 	// VersionPrerelease is A pre-release marker for the Version. If this is ""
 	// (empty string) then it means that it is a final release. Otherwise, this
@@ -22,11 +22,10 @@ var (
 	PluginVersion = version.InitializePluginVersion(Version, VersionPrerelease)
 )
 
-
 func main() {
 
 	pps := plugin.NewSet()
-	pps.RegisterBuilder("qemu-chroot", new(chroot.Builder))
+	pps.RegisterBuilder(plugin.DEFAULT_NAME, new(chroot.Builder))
 	pps.SetVersion(PluginVersion)
 	err := pps.Run()
 	if err != nil {
