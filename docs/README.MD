@@ -1,4 +1,4 @@
-# QEMU-Chroot Plugins
+# qemu-chroot Plugins
 <!--
   Include a short overview about the plugin.
 
@@ -28,7 +28,7 @@ packer {
   required_plugins {
     qemu = {
       version = ">= 0.0.2"
-      source  = "github.com/wangjiaxi90/qemu"
+      source  = "github.com/HashDataInc/qemu"
     }
   }
 }

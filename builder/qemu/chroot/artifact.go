@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-const BuilderId = "wangzw.qeum.chroot"
+const BuilderId = "packer.qemu.chroot"
 
 // Artifact is the result of running the qemu-chroot builder, namely a set
 // of files associated with the resulting machine.

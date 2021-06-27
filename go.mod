@@ -1,9 +1,9 @@
-module github.com/wangjiaxi90/packer-plugin-qemu
+module github.com/HashDataInc/packer-plugin-qemu
 
 go 1.16
 
 require (
-	github.com/hashicorp/go-version v1.3.0
+	github.com/hashicorp/go-version v1.3.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.10.0
 	github.com/hashicorp/packer-plugin-sdk v0.2.3
 	github.com/zclconf/go-cty v1.8.3
