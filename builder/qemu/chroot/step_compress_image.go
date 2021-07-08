@@ -3,6 +3,7 @@ package chroot
 import (
 	"context"
 	"fmt"
+	"runtime"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
@@ -19,8 +20,15 @@ func (s *StepCompressImage) Run(_ context.Context, state multistep.StateBag) mul
 
 	ui.Say("Compressing image...")
 
-	if _, err := RunCommand(state, fmt.Sprintf("qemu-img convert -f raw -O qcow2 -c %s %s", rawImage, imagePath)); err != nil {
-		return Halt(state, err)
+	if runtime.GOARCH == "arm64" {
+		// https://bugzilla.redhat.com/show_bug.cgi?id=1969848
+		if _, err := RunCommand(state, fmt.Sprintf("qemu-img convert -m 1 -f raw -O qcow2 -c %s %s", rawImage, imagePath)); err != nil {
+			return Halt(state, err)
+		}
+	} else {
+		if _, err := RunCommand(state, fmt.Sprintf("qemu-img convert -f raw -O qcow2 -c %s %s", rawImage, imagePath)); err != nil {
+			return Halt(state, err)
+		}
 	}
 
 	return multistep.ActionContinue
