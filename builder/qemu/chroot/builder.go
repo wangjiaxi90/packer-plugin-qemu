@@ -58,9 +58,9 @@ type Config struct {
 	// template where the .Device variable is replaced with the name of the
 	// device where the volume is attached.
 	MountPath string `mapstructure:"mount_path" required:"false"`
-// This is a list of devices to mount into the chroot environment. This
-// configuration parameter requires some additional documentation which is
-// in the Chroot Mounts section. Please read that section for more
+	// This is a list of devices to mount into the chroot environment. This
+	// configuration parameter requires some additional documentation which is
+	// in the Chroot Mounts section. Please read that section for more
 	// information on how to use this.
 	ChrootMounts [][]string `mapstructure:"chroot_mounts" required:"false"`
 	// How to run shell commands. This defaults to `{{.Command}}`. This may be
