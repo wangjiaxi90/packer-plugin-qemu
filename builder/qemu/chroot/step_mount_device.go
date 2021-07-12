@@ -61,6 +61,13 @@ func (s *StepMountDevice) Run(_ context.Context, state multistep.StateBag) multi
 		opts = "-o " + strings.Join(s.MountOptions, " -o ")
 	}
 
+	// TODO 挂在之前执行呢 还是挂在之后执行呢？
+	if qemuSize != 8 {
+		if _, err := RunCommand(state, fmt.Sprintf("lvextent -L +%dG %s", qemuSize-8, device)); err != nil {
+			return Halt(state, fmt.Errorf("check device error \"%s\" : %s", device, err))
+		}
+	}
+
 	if _, err := RunCommand(state, fmt.Sprintf("mount %s %s %s", opts, device, mountPath)); err != nil {
 		return Halt(state, fmt.Errorf("Cannot mount device \"%s\": %s", device, err))
 	}

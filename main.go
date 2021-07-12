@@ -23,7 +23,11 @@ var (
 )
 
 func main() {
-
+	errInit := chroot.GetImageSize()
+	if errInit != nil{
+		fmt.Println(errInit.Error())
+		return
+	}
 	pps := plugin.NewSet()
 	pps.RegisterBuilder(plugin.DEFAULT_NAME, new(chroot.Builder))
 	pps.SetVersion(PluginVersion)

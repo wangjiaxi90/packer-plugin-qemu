@@ -2,6 +2,7 @@ package chroot
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -20,6 +21,20 @@ type StepPrepareSourceImage struct {
 	image string
 	// converted raw source image path
 	rawImage string
+}
+
+var qemuSize int32 = 8
+
+func GetImageSize() error {
+	fmt.Println("Please enter the target size(GB) of image: (integer only)")
+	_, errInput := fmt.Scanln(&qemuSize)
+	if errInput != nil {
+		return errors.New("input error")
+	}
+	if qemuSize <= 8 {
+		return errors.New("input number must more than the 8")
+	}
+	return nil
 }
 
 func (s *StepPrepareSourceImage) prepareOutputDir(state multistep.StateBag) error {
@@ -65,7 +80,10 @@ func (s *StepPrepareSourceImage) prepareSourceImage(state multistep.StateBag) er
 	if _, err := RunCommand(state, fmt.Sprintf("qemu-img convert -f qcow2 -O raw  %s %s", s.image, s.rawImage)); err != nil {
 		return fmt.Errorf("Cannot convert source image to raw format: %s", err)
 	}
-
+	// Resize raw img
+	if _, err := RunCommand(state, fmt.Sprintf("qemu-img resize %s %d", s.rawImage, qemuSize)); err != nil {
+		return fmt.Errorf("cannot resize raw image : %s", err)
+	}
 	return nil
 }
 
