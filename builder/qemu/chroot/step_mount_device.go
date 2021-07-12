@@ -62,12 +62,38 @@ func (s *StepMountDevice) Run(_ context.Context, state multistep.StateBag) multi
 	}
 
 	// TODO 挂在之前执行呢 还是挂在之后执行呢？
-	if qemuSize != 8 {
-		if _, err := RunCommand(state, fmt.Sprintf("lvextent -L +%dG %s", qemuSize-8, device)); err != nil {
+	if QemuImageSize != 8 {
+		// extend the disk
+		if _, err := RunCommand(state, fmt.Sprintf("lvextent -L +%dG %s", QemuImageSize-8, device)); err != nil {
 			return Halt(state, fmt.Errorf("check device error \"%s\" : %s", device, err))
 		}
-	}
 
+		// sync the file system
+		var fileOsResult string
+		if fileOsResult, err = RunCommand(state, fmt.Sprintf("df -T | grep %s", device)); err != nil {
+			return Halt(state, fmt.Errorf("can not peek the file system of deivce:\"%s\" ,%s", device, err))
+		}
+		//remove extra space
+		for {
+			if !strings.Contains(fileOsResult, "  ") {
+				break
+			}
+			fileOsResult = strings.Replace(fileOsResult, "  ", " ", -1)
+		}
+		fileOs := strings.SplitN(fileOsResult, " ", -1)[1]
+		if fileOs == "ext4" || fileOs == "ext3" || fileOs == "ext2" {
+			if _, err := RunCommand(state, fmt.Sprintf("resize2fs -P %s", device)); err != nil {
+				return Halt(state, fmt.Errorf("sync ext4 file system error, device: \"%s\"\t err: %s", device, err))
+			}
+		} else if fileOs == "xfs" {
+			if _, err := RunCommand(state, fmt.Sprintf("xfs_growfs %s", device)); err != nil {
+				return Halt(state, fmt.Errorf("sync xfs file system error, device: \"%s\"\t err: %s", device, err))
+			}
+		} else {
+			return Halt(state, fmt.Errorf("unknow file system:%s\tdevice:\"%s\"", fileOs, device))
+		}
+	}
+	// TODO end
 	if _, err := RunCommand(state, fmt.Sprintf("mount %s %s %s", opts, device, mountPath)); err != nil {
 		return Halt(state, fmt.Errorf("Cannot mount device \"%s\": %s", device, err))
 	}

@@ -1,11 +1,12 @@
 //go:generate struct-markdown
 //go:generate mapstructure-to-hcl2 -type Config
 
+package chroot
+
 // The chroot package is able to create an qcow2 format image without requiring the
 // launch of a new instance virtual machine for every build. It does this by attaching and
 // mounting the source image and chrooting into that directory.
 // It then creates a new qcow2 format image from that attached drive.
-package chroot
 
 import (
 	"context"
@@ -58,9 +59,9 @@ type Config struct {
 	// template where the .Device variable is replaced with the name of the
 	// device where the volume is attached.
 	MountPath string `mapstructure:"mount_path" required:"false"`
-// This is a list of devices to mount into the chroot environment. This
-// configuration parameter requires some additional documentation which is
-// in the Chroot Mounts section. Please read that section for more
+	// This is a list of devices to mount into the chroot environment. This
+	// configuration parameter requires some additional documentation which is
+	// in the Chroot Mounts section. Please read that section for more
 	// information on how to use this.
 	ChrootMounts [][]string `mapstructure:"chroot_mounts" required:"false"`
 	// How to run shell commands. This defaults to `{{.Command}}`. This may be
@@ -75,6 +76,8 @@ type Config struct {
 	// /etc/resolv.conf. You may need to do this if you're building an image
 	// that uses systemd.
 	CopyFiles []string `mapstructure:"copy_files" required:"false"`
+
+	QemuImageSize int32 `mapstructure:"qemu_image_size" required:"false"`
 
 	ctx interpolate.Context
 }
@@ -126,6 +129,12 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 	}
 
 	// set default copy file if we're not giving our own
+	if b.config.QemuImageSize != 0 {
+		if b.config.QemuImageSize < 8 {
+			return nil, nil, errors.New("qemu_image_size is not allow less than 8")
+		}
+		QemuImageSize = b.config.QemuImageSize
+	}
 	if b.config.CopyFiles == nil {
 		b.config.CopyFiles = []string{"/etc/resolv.conf"}
 	}
