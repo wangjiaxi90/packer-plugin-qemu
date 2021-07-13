@@ -64,9 +64,9 @@ func (s *StepMountDevice) Run(_ context.Context, state multistep.StateBag) multi
 	// TODO 挂在之前执行呢 还是挂在之后执行呢？
 	if config.QemuImageSize != 8 {
 		// extend the disk
-		if _, err := RunCommand(state, fmt.Sprintf("lvextend -L +%dG %s", config.QemuImageSize-8, device)); err != nil {
-			return Halt(state, fmt.Errorf("check device error \"%s\" : %s", device, err))
-		}
+		//if _, err := RunCommand(state, fmt.Sprintf("lvextend -L +%dG %s", config.QemuImageSize-8, device)); err != nil {
+		//	return Halt(state, fmt.Errorf("check device error \"%s\" : %s", device, err))
+		//}
 
 		// sync the file system
 		var fileOsResult string
