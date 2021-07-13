@@ -157,7 +157,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 	}
 
 	if b.config.MountPartition == "" {
-		b.config.MountPartition = "0"
+		b.config.MountPartition = "0"// TODO  这么改对吗？
 	}
 
 	// Accumulate any errors or warnings

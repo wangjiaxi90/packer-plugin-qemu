@@ -52,6 +52,7 @@ func (s *StepAttachVolume) Run(_ context.Context, state multistep.StateBag) mult
 
 	s.deviceMapped = true
 
+	s.MountPartition = 1  // TODO 临时添加
 	// add partition mapping
 	cmd := fmt.Sprintf("set -o pipefail >/dev/null 2>&1; kpartx -av %s | awk \"/loop[0-9]+p%d/ {print \\$3}\"", s.rawImage, s.MountPartition)
 	if s.device, err = RunCommand(state, cmd); err != nil {
