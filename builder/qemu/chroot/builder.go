@@ -133,7 +133,6 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 		if b.config.QemuImageSize < 8 {
 			return nil, nil, errors.New("qemu_image_size is not allow less than 8")
 		}
-		QemuImageSize = b.config.QemuImageSize
 	}
 	if b.config.CopyFiles == nil {
 		b.config.CopyFiles = []string{"/etc/resolv.conf"}
@@ -158,7 +157,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 	}
 
 	if b.config.MountPartition == "" {
-		b.config.MountPartition = "1"
+		b.config.MountPartition = "0"
 	}
 
 	// Accumulate any errors or warnings

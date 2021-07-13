@@ -22,7 +22,6 @@ type StepPrepareSourceImage struct {
 	rawImage string
 }
 
-var QemuImageSize int32 = 8
 
 func (s *StepPrepareSourceImage) prepareOutputDir(state multistep.StateBag) error {
 	config := state.Get("config").(*Config)
@@ -68,7 +67,7 @@ func (s *StepPrepareSourceImage) prepareSourceImage(state multistep.StateBag) er
 		return fmt.Errorf("Cannot convert source image to raw format: %s", err)
 	}
 	// Resize raw img
-	if _, err := RunCommand(state, fmt.Sprintf("qemu-img resize %s %d", s.rawImage, QemuImageSize)); err != nil {
+	if _, err := RunCommand(state, fmt.Sprintf("qemu-img resize %s %d", s.rawImage, config.QemuImageSize)); err != nil {
 		return fmt.Errorf("cannot resize raw image : %s", err)
 	}
 	return nil
