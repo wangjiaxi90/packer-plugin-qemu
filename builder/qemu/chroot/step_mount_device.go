@@ -61,6 +61,11 @@ func (s *StepMountDevice) Run(_ context.Context, state multistep.StateBag) multi
 		opts = "-o " + strings.Join(s.MountOptions, " -o ")
 	}
 
+
+	if _, err := RunCommand(state, fmt.Sprintf("mount %s %s %s", opts, device, mountPath)); err != nil {
+		return Halt(state, fmt.Errorf("Cannot mount device \"%s\": %s", device, err))
+	}
+
 	// TODO 挂在之前执行呢 还是挂在之后执行呢？
 	if config.QemuImageSize != 8 {
 		// extend the disk
@@ -94,9 +99,6 @@ func (s *StepMountDevice) Run(_ context.Context, state multistep.StateBag) multi
 		}
 	}
 	// TODO end
-	if _, err := RunCommand(state, fmt.Sprintf("mount %s %s %s", opts, device, mountPath)); err != nil {
-		return Halt(state, fmt.Errorf("Cannot mount device \"%s\": %s", device, err))
-	}
 
 	// Set the mount path so we remember to unmount it later
 	s.mountPath = mountPath
