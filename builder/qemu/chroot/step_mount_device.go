@@ -86,11 +86,13 @@ func (s *StepMountDevice) Run(_ context.Context, state multistep.StateBag) multi
 			fileOsResult = strings.Replace(fileOsResult, "  ", " ", -1)
 		}
 		fileOs := strings.SplitN(fileOsResult, " ", -1)[1]
-		if fileOs == "ext4" || fileOs == "ext3" || fileOs == "ext2" {
-			if _, err := RunCommand(state, fmt.Sprintf("resize2fs -P %s", device)); err != nil {
-				return Halt(state, fmt.Errorf("sync ext4 file system error, device: \"%s\"\t err: %s", device, err))
-			}
-		} else if fileOs == "xfs" {
+		//if fileOs == "ext4" || fileOs == "ext3" || fileOs == "ext2" { // TODO ext4 可能得在挂在之前
+		//	if _, err := RunCommand(state, fmt.Sprintf("resize2fs -P %s", device)); err != nil {
+		//		return Halt(state, fmt.Errorf("sync ext4 file system error, device: \"%s\"\t err: %s", device, err))
+		//	}
+		//} else
+
+		if fileOs == "xfs" {
 			if _, err := RunCommand(state, fmt.Sprintf("xfs_growfs %s", device)); err != nil {
 				return Halt(state, fmt.Errorf("sync xfs file system error, device: \"%s\"\t err: %s", device, err))
 			}
