@@ -61,46 +61,26 @@ func (s *StepMountDevice) Run(_ context.Context, state multistep.StateBag) multi
 		opts = "-o " + strings.Join(s.MountOptions, " -o ")
 	}
 
-
 	if _, err := RunCommand(state, fmt.Sprintf("mount %s %s %s", opts, device, mountPath)); err != nil {
 		return Halt(state, fmt.Errorf("Cannot mount device \"%s\": %s", device, err))
 	}
 
-	// TODO 挂在之前执行呢 还是挂在之后执行呢？
-	if config.QemuImageSize != 8 {
-		// extend the disk
-		//if _, err := RunCommand(state, fmt.Sprintf("lvextend -L +%dG %s", config.QemuImageSize-8, device)); err != nil {
-		//	return Halt(state, fmt.Errorf("check device error \"%s\" : %s", device, err))
-		//}
-
+	if config.ImageSize > 0 {
 		// sync the file system
 		var fileOsResult string
-		if fileOsResult, err = RunCommand(state, fmt.Sprintf("df -T | grep %s", device)); err != nil {
-			return Halt(state, fmt.Errorf("can not peek the file system of deivce:\"%s\" ,%s", device, err))
+		if fileOsResult, err = RunCommand(state, fmt.Sprintf("df --output=source,fstype | grep %s", device)); err != nil {
+			return Halt(state, fmt.Errorf("cannot peek the file system of deivce:\"%s\" ,%s", device, err))
 		}
-		//remove extra space
-		for {
-			if !strings.Contains(fileOsResult, "  ") {
-				break
-			}
-			fileOsResult = strings.Replace(fileOsResult, "  ", " ", -1)
-		}
-		fileOs := strings.SplitN(fileOsResult, " ", -1)[1]
-		//if fileOs == "ext4" || fileOs == "ext3" || fileOs == "ext2" { // TODO ext4 可能得在挂在之前
-		//	if _, err := RunCommand(state, fmt.Sprintf("resize2fs -P %s", device)); err != nil {
-		//		return Halt(state, fmt.Errorf("sync ext4 file system error, device: \"%s\"\t err: %s", device, err))
-		//	}
-		//} else
-
+		arr := strings.Split(fileOsResult, " ")
+		fileOs := arr[len(arr)-1]
 		if fileOs == "xfs" {
-			if _, err := RunCommand(state, fmt.Sprintf("xfs_growfs %s", device)); err != nil {
+			if _, err := RunCommand(state, fmt.Sprintf("xfs_growfs %s", mountPath)); err != nil {
 				return Halt(state, fmt.Errorf("sync xfs file system error, device: \"%s\"\t err: %s", device, err))
 			}
 		} else {
 			return Halt(state, fmt.Errorf("unknow file system:%s\tdevice:\"%s\"", fileOs, device))
 		}
 	}
-	// TODO end
 
 	// Set the mount path so we remember to unmount it later
 	s.mountPath = mountPath
